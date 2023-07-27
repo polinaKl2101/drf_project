@@ -55,3 +55,16 @@ class Payments(models.Model):
     class Meta:
         verbose_name = 'Платеж'
         verbose_name_plural = 'Платежи'
+
+
+class CourseSubscription(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Пользователь')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, verbose_name='Название курса')
+    is_subscribed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user.email} - subscription {self.is_subscribed}'
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
