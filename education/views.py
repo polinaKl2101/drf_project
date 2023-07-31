@@ -1,7 +1,10 @@
+import stripe
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, generics
 from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
+
+from django.conf import settings
 from education.models import Course, Lesson, Payments, CourseSubscription
 from education.paginators import DataPaginator
 from education.permissions import IsOwnerOrStaff
@@ -52,6 +55,17 @@ class LessonDestroyAPIView(generics.DestroyAPIView):
 class PaymentsCreateAPIView(generics.CreateAPIView):
     serializer_class = PaymentsSerializer
     permission_classes = [IsAuthenticated]
+
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+    stripe.PaymentIntent.create(
+        amount=2000,
+        currency="usd",
+        automatic_payment_methods={"enabled": True},
+    )
+
+    stripe.PaymentIntent.retrieve(
+        "pi_1Gszqb2eZvKYlo2Cd0i62pXt",
+    )
 
 
 class PaymentsListAPIView(generics.ListAPIView):
