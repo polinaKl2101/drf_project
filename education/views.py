@@ -12,6 +12,7 @@ from education.paginators import DataPaginator
 from education.permissions import IsOwnerOrStaff
 from education.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer, CourseSubscriptionSerializer
 from education.services import CreateCheckoutSession
+from education.tasks import send_course_update_mail
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -22,6 +23,7 @@ class CourseViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         new_course = serializer.save()
+
         new_course.owner = self.request.user
         new_course.save()
 
@@ -29,6 +31,13 @@ class CourseViewSet(viewsets.ModelViewSet):
 class LessonCreateAPIView(generics.CreateAPIView):
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrStaff]
+
+    def perform_create(self, serializer):
+        new_lesson = serializer.save(owner=self.request.user)
+        if new_lesson:
+            send_course_update_mail.delay(new_lesson.course.id)
+        new_lesson.owner = self.request.user
+        new_lesson.save()
 
 
 class LessonListAPIView(generics.ListAPIView):

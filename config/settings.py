@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
     'corsheaders',
+    'django_celery_beat',
 
     'users',
     'education',
@@ -152,3 +153,24 @@ CSRF_TRUSTED_ORIGINS = [
 
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
 STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+
+CELERY_TIMEZONE = "Europe/Moscow"
+
+CELERY_TASK_TRACK_STARTED = True
+
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.mail.ru'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+SERVER_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
