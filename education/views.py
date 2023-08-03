@@ -5,10 +5,13 @@ from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from django.conf import settings
+
+from config.settings import STRIPE_SECRET_KEY
 from education.models import Course, Lesson, Payments, CourseSubscription
 from education.paginators import DataPaginator
 from education.permissions import IsOwnerOrStaff
 from education.serializers import CourseSerializer, LessonSerializer, PaymentsSerializer, CourseSubscriptionSerializer
+from education.services import CreateCheckoutSession
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -56,16 +59,12 @@ class PaymentsCreateAPIView(generics.CreateAPIView):
     serializer_class = PaymentsSerializer
     permission_classes = [IsAuthenticated]
 
-    stripe.api_key = settings.STRIPE_SECRET_KEY
-    stripe.PaymentIntent.create(
-        amount=2000,
-        currency="usd",
-        automatic_payment_methods={"enabled": True},
-    )
+    def post(self, request, *args, **kwargs):
+        amount = 2000,
+        currency = "usd"
 
-    stripe.PaymentIntent.retrieve(
-        "pi_1Gszqb2eZvKYlo2Cd0i62pXt",
-    )
+        payment = CreateCheckoutSession()
+        payment_session = payment.create_payment(amount, currency)
 
 
 class PaymentsListAPIView(generics.ListAPIView):
@@ -103,4 +102,3 @@ class CourseSubscriptionCreateAPIView(generics.CreateAPIView):
 class CourseSubscriptionDestroyAPIView(generics.DestroyAPIView):
     queryset = CourseSubscription.objects.all()
     permission_classes = [AllowAny]
-
